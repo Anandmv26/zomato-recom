@@ -163,37 +163,45 @@ export default function FilterPanel({ filtersData, onSubmit, loading }) {
                     </div>
                 </div>
 
-                {/* Budget Range */}
+                {/* Budget Range (Dual Handle) */}
                 <div className="filter-group">
-                    <span className="group-label">Budget for Two</span>
-                    <div className="budget-range-row">
-                        <div className="slider-col">
-                            <div className="slider-label-row">
-                                <span>Min</span><span className="slider-value">₹{minCost}</span>
-                            </div>
+                    <span className="group-label">Budget for Two (Range)</span>
+
+                    <div className="dual-range-group">
+                        <div className="dual-range-track"></div>
+                        <div
+                            className="dual-range-highlight"
+                            style={{
+                                left: `${((minCost - costMin) / (costMax - costMin)) * 100}%`,
+                                width: `${((maxCost - minCost) / (costMax - costMin)) * 100}%`
+                            }}
+                        ></div>
+                        <div className="range-input-wrapper">
                             <input
                                 type="range"
-                                id="min-cost-slider"
-                                className="filter-slider"
                                 min={costMin} max={costMax} step={50}
                                 value={minCost}
-                                onChange={e => setMinCost(e.target.value)}
-                                aria-label="Minimum cost for two"
+                                onChange={e => setMinCost(Math.min(Number(e.target.value), maxCost - 100))}
+                                aria-label="Minimum budget"
                             />
-                        </div>
-                        <div className="slider-col">
-                            <div className="slider-label-row">
-                                <span>Max</span><span className="slider-value">₹{maxCost}</span>
-                            </div>
                             <input
                                 type="range"
-                                id="max-cost-slider"
-                                className="filter-slider"
                                 min={costMin} max={costMax} step={50}
                                 value={maxCost}
-                                onChange={e => setMaxCost(e.target.value)}
-                                aria-label="Maximum cost for two"
+                                onChange={e => setMaxCost(Math.max(Number(e.target.value), minCost + 100))}
+                                aria-label="Maximum budget"
                             />
+                        </div>
+                    </div>
+
+                    <div className="range-values-row">
+                        <div className="slider-col">
+                            <span className="range-label-text">Min</span>
+                            <span className="range-price-val">₹{minCost}</span>
+                        </div>
+                        <div className="slider-col" style={{ textAlign: 'right' }}>
+                            <span className="range-label-text">Max</span>
+                            <span className="range-price-val">₹{maxCost}</span>
                         </div>
                     </div>
                 </div>
