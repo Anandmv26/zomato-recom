@@ -264,8 +264,9 @@ body{
 .filter-error{
   background:rgba(201,48,48,0.17);border:1px solid rgba(201,48,48,0.40);
   border-radius:var(--radius-sm);color:#ffb3b3;
-  padding:0.55rem 0.82rem;font-size:0.81rem;
+  padding:0.65rem 1rem;font-size:0.83rem;
   margin-bottom:0.82rem;animation:shake 0.34s ease;
+  white-space:pre-wrap;line-height:1.4;
 }
 @keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
 

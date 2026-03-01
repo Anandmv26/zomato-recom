@@ -15,6 +15,12 @@ export async function fetchRecommendations(filters) {
         body: JSON.stringify(filters),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    if (!res.ok) {
+        // Handle detail being a string or an array of strings (validation errors)
+        const message = Array.isArray(data.detail) 
+            ? data.detail.join('\n') 
+            : (data.detail || 'Request failed');
+        throw new Error(message);
+    }
     return data;
 }

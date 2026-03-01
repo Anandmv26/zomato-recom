@@ -117,10 +117,11 @@ async def recommend(req: FilterRequest):
     """
     _require_loaded()
 
-    # Runtime enum validation (city / cuisines / rest_types vs. dataset values)
-    enum_errors = validate_filter_enums(req, app_state)
-    if enum_errors:
-        raise HTTPException(status_code=422, detail=enum_errors)
+    # Runtime enum validation disabled. Since frontend uses static JSON for filters, 
+    # we allow these values even if they aren't in the current sampled AppState.df.
+    # enum_errors = validate_filter_enums(req, app_state)
+    # if enum_errors:
+    #     raise HTTPException(status_code=422, detail=enum_errors)
 
     # Build FilterParams from request
     params = FilterParams(
