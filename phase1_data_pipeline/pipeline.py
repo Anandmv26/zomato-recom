@@ -216,11 +216,25 @@ def bootstrap(dataset_name: str = "ManikaSaini/zomato-restaurant-recommendation"
     """
     One-time startup routine.
     Loads, preprocesses, and caches the dataset into `app_state`.
-    Call this once when the backend server starts.
+    Optimized for Serverless (Vercel) environments.
     """
     global app_state
+    import os
 
+    # Vercel fix: Ensure HuggingFace cache is in /tmp
+    if os.environ.get("VERCEL"):
+        os.environ["HF_HOME"] = "/tmp/huggingface"
+        os.environ["XDG_CACHE_HOME"] = "/tmp/cache"
+
+    logger.info(f"Bootstrapping data pipeline (Serverless Mode: {bool(os.environ.get('VERCEL'))})")
+    
     raw_df = load_raw_dataset(dataset_name)
+
+    # Vercel fix: Limit data size to 15k rows to avoid memory/timeout issues in serverless
+    if os.environ.get("VERCEL") and len(raw_df) > 15000:
+        logger.info("Vercel detected: Truncating dataset to 15,000 rows for stability.")
+        raw_df = raw_df.sample(n=15000, random_state=42)
+
     clean_df = preprocess(raw_df)
     dropdown_maps = extract_dropdown_maps(clean_df)
 
