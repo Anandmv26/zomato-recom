@@ -1,0 +1,25 @@
+{
+    "builds": [
+        {
+            "src": "api/index.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "phase4_frontend/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "api/index.py"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/phase4_frontend/$1"
+        }
+    ]
+}
