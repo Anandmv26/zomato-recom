@@ -53,6 +53,8 @@ async def lifespan(app: FastAPI):
 # App instance
 # ---------------------------------------------------------------------------
 
+import os
+
 app = FastAPI(
     title="Zomato Restaurant Recommendation API",
     description=(
@@ -61,6 +63,8 @@ app = FastAPI(
     ),
     version="1.0.0",
     lifespan=lifespan,
+    # Set the root_path to /api for Vercel monorepo compatibility
+    root_path="/api" if os.environ.get("VERCEL") else "",
 )
 
 # CORS — allow the React frontend (Phase 4) to call the API
