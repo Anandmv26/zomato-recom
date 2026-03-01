@@ -1,0 +1,17 @@
+{
+  "venvPath": ".",
+  "venv": "venv",
+  "pythonVersion": "3.11",
+  "extraPaths": ["."],
+  "include": [
+    "phase1_data_pipeline",
+    "phase2_llm_engine",
+    "phase3_rest_api",
+    "phase4_frontend",
+    "phase5_polish"
+  ],
+  "exclude": [
+    "venv",
+    "**/__pycache__"
+  ]
+}
