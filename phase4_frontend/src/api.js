@@ -1,5 +1,5 @@
-// API base URL — override via VITE_API_URL env variable
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// API base URL — default to /api for production/Vercel, or localhost:8000 for local dev
+const BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api');
 
 export async function fetchFilters() {
     const res = await fetch(`${BASE_URL}/filters`);
