@@ -98,23 +98,7 @@ async def health():
         "restaurant_count": len(app_state.df) if app_state.df is not None else 0,
     }
 
-
-@app.get("/filters", response_model=FiltersResponse, tags=["Filters"])
-async def get_filters():
-    """
-    Returns all dynamic dropdown/slider values sourced from the cleaned dataset.
-    The frontend must call this endpoint to populate filter UI — no hardcoded values.
-    """
-    _require_loaded()
-    return FiltersResponse(
-        cuisines=app_state.cuisines,
-        rest_types=app_state.rest_types,
-        cities=app_state.cities,
-        cost_range={"min": app_state.min_cost, "max": app_state.max_cost},
-        rating_range={"min": app_state.min_rating, "max": app_state.max_rating},
-        online_ordering_options=["yes", "no"],
-        table_booking_options=["yes", "no"],
-    )
+# Removed /filters endpoint. Dropdowns are now static JSON.
 
 
 @app.post("/recommend", response_model=RecommendResponse, tags=["Recommend"])

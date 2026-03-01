@@ -1,10 +1,11 @@
 // API base URL — default to /api for production/Vercel, or localhost:8000 for local dev
 const BASE_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : '/api');
 
+import filtersData from './data/filters.json';
+
 export async function fetchFilters() {
-    const res = await fetch(`${BASE_URL}/filters`);
-    if (!res.ok) throw new Error('Failed to load filters');
-    return res.json();
+    // Return static values from the local JSON file
+    return filtersData;
 }
 
 export async function fetchRecommendations(filters) {
