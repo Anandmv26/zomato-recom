@@ -118,7 +118,10 @@ def _split_and_collect(series: pd.Series) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def load_raw_dataset(dataset_name: str = "ManikaSaini/zomato-restaurant-recommendation") -> pd.DataFrame:
-    """Load raw HuggingFace dataset and return as a Pandas DataFrame."""
+    """
+    Load raw Zomato dataset.
+    On Vercel, we use direct pandas.read_csv for memory efficiency.
+    """
     logger.info(f"Loading dataset: {dataset_name}")
     import os
     
@@ -127,12 +130,19 @@ def load_raw_dataset(dataset_name: str = "ManikaSaini/zomato-restaurant-recommen
                     COL_COST, COL_CUISINE, COL_REST_TYPE, COL_ONLINE_ORDER, 
                     COL_BOOK_TABLE, COL_URL]
     
-    ds = load_dataset(dataset_name, split="train")
-    df = ds.to_pandas()
-    
-    # Drop irrelevant columns early to save memory
-    available_cols = [c for c in cols_to_keep if c in df.columns]
-    df = df[available_cols]
+    if os.environ.get("VERCEL"):
+        # Vercel: Read direct CSV to bypass the heavy 'datasets' library
+        csv_url = f"https://huggingface.co/datasets/{dataset_name}/resolve/main/zomato.csv"
+        logger.info(f"Vercel Mode: Fetching CSV directly from {csv_url}")
+        
+        # We use chunksize or limited columns to keep memory ultra-low
+        df = pd.read_csv(csv_url, usecols=lambda c: c in cols_to_keep, low_memory=False)
+    else:
+        # Local: Use datasets library as originally designed
+        ds = load_dataset(dataset_name, split="train")
+        df = ds.to_pandas()
+        available_cols = [c for c in cols_to_keep if c in df.columns]
+        df = df[available_cols]
     
     logger.info(f"Raw dataset loaded: {len(df)} rows, {len(df.columns)} columns")
     return df
@@ -242,10 +252,10 @@ def bootstrap(dataset_name: str = "ManikaSaini/zomato-restaurant-recommendation"
     
     raw_df = load_raw_dataset(dataset_name)
 
-    # Vercel fix: Limit data size to 5k rows to avoid memory/timeout issues in serverless
-    if os.environ.get("VERCEL") and len(raw_df) > 5000:
-        logger.info("Vercel detected: Truncating dataset to 5,000 rows for stability.")
-        raw_df = raw_df.sample(n=5000, random_state=42)
+    # Vercel fix: EXTREME reduction to 1,000 rows to ensure 100% stability in free-tier serverless.
+    if os.environ.get("VERCEL") and len(raw_df) > 1000:
+        logger.info("Vercel detected: Truncating dataset to 1,000 rows for memory/timeout stability.")
+        raw_df = raw_df.sample(n=1000, random_state=42)
 
     clean_df = preprocess(raw_df)
     dropdown_maps = extract_dropdown_maps(clean_df)
