@@ -120,8 +120,20 @@ def _split_and_collect(series: pd.Series) -> list[str]:
 def load_raw_dataset(dataset_name: str = "ManikaSaini/zomato-restaurant-recommendation") -> pd.DataFrame:
     """Load raw HuggingFace dataset and return as a Pandas DataFrame."""
     logger.info(f"Loading dataset: {dataset_name}")
+    import os
+    
+    # Selection of only needed columns to save memory in Serverless
+    cols_to_keep = [COL_NAME, COL_LOCATION, COL_PHONE, COL_RATING, COL_VOTES, 
+                    COL_COST, COL_CUISINE, COL_REST_TYPE, COL_ONLINE_ORDER, 
+                    COL_BOOK_TABLE, COL_URL]
+    
     ds = load_dataset(dataset_name, split="train")
     df = ds.to_pandas()
+    
+    # Drop irrelevant columns early to save memory
+    available_cols = [c for c in cols_to_keep if c in df.columns]
+    df = df[available_cols]
+    
     logger.info(f"Raw dataset loaded: {len(df)} rows, {len(df.columns)} columns")
     return df
 
@@ -230,10 +242,10 @@ def bootstrap(dataset_name: str = "ManikaSaini/zomato-restaurant-recommendation"
     
     raw_df = load_raw_dataset(dataset_name)
 
-    # Vercel fix: Limit data size to 15k rows to avoid memory/timeout issues in serverless
-    if os.environ.get("VERCEL") and len(raw_df) > 15000:
-        logger.info("Vercel detected: Truncating dataset to 15,000 rows for stability.")
-        raw_df = raw_df.sample(n=15000, random_state=42)
+    # Vercel fix: Limit data size to 5k rows to avoid memory/timeout issues in serverless
+    if os.environ.get("VERCEL") and len(raw_df) > 5000:
+        logger.info("Vercel detected: Truncating dataset to 5,000 rows for stability.")
+        raw_df = raw_df.sample(n=5000, random_state=42)
 
     clean_df = preprocess(raw_df)
     dropdown_maps = extract_dropdown_maps(clean_df)
